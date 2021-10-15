@@ -1,0 +1,31 @@
+Bootstrap: localimage
+From: cuda-2019-05-13.simg
+
+%files
+    /home/sheppk/projects/pose-est-env /
+
+%runscript
+
+    python3 -u /pose-est-env/deep-hres-net/tools/inferobjects.py \
+        --iou-threshold 0.5 \
+        --maximum-merge-duration-secs 0.0 \
+        --model-file "/pose-est-env/obj-seg-model.pth" \
+        "/pose-est-env/obj-seg-conf.yaml" \
+        "${1}" "${2}"
+
+%post
+    apt-get -y update
+    apt-get -y install less
+    apt-get -y install vim
+    apt-get -y install ffmpeg
+    apt-get -y install python3-pip
+    apt-get -y install libsm6
+    apt-get -y install libxext6
+    apt-get -y install libxrender-dev
+    apt-get -y clean
+
+    pip3 install https://download.pytorch.org/whl/cu100/torch-1.1.0-cp36-cp36m-linux_x86_64.whl
+    pip3 install 'torchvision==0.2.2' # getting "ImportError: libcudart.so.9.0" with 0.3
+    pip3 install -r /pose-est-env/deep-hres-net/requirements.txt
+
+    chmod -R a+rw /pose-est-env
